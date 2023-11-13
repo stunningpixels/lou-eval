@@ -7,6 +7,8 @@ import {
 
 import levenshtein from 'js-levenshtein';
 
+import { saveResults } from './save.js';
+
 const QUESTION =
   'Who has a pet fruit instead of a pet animal? Respond with a JSON list all the instances you find in the format: [{"name":"NAME OF PERSON","fruit":"NAME OF FRUIT"},...]. DO NOT INCLUDE ANY ANIMALS.';
 
@@ -111,14 +113,20 @@ const run = async (provider, max_tokens) => {
   const { prompt, matches } = await getPrompt(provider, max_tokens);
   let result = await provider.generateCompletion(`${prompt}\n\n${QUESTION}`);
 
-  // Parse the JSON, ignoring the text before the JSON begins
-  const json = result.substring(
-    result.indexOf('['),
-    result.lastIndexOf(']') + 1
-  );
-  const parsed = JSON.parse(json);
+  let parsed;
 
-  console.log(parsed);
+  try {
+    // Parse the JSON, ignoring the text before the JSON begins
+    const json = result.substring(
+      result.indexOf('['),
+      result.lastIndexOf(']') + 1
+    );
+    parsed = JSON.parse(json);
+    console.log(parsed);
+  } catch (e) {
+    console.log(result);
+    throw new Error('Failed to parse JSON');
+  }
 
   const results = compareMatches(matches, parsed);
 
@@ -127,36 +135,62 @@ const run = async (provider, max_tokens) => {
 
 export default async (provider) => {
   const RUNS = process.env.RUNS || 10;
-  const max_tokens = 1000;
+  let max_tokens = 64000;
+  let results = [];
 
-  const results = [];
-  let successfulRuns = 0;
-  let failedRuns = 0;
+  while (max_tokens < provider.maxTokens) {
+    const results_at_token = [];
+    let successfulRuns = 0;
+    let failedRuns = 0;
 
-  while (successfulRuns < RUNS && failedRuns < RUNS) {
-    try {
-      const result = await run(provider, max_tokens);
-      console.log(successfulRuns + 1, RUNS);
-      results.push(result);
-      console.log('Results', results);
-      successfulRuns++;
-    } catch (e) {
-      failedRuns++;
-      console.log(e);
+    while (successfulRuns < RUNS && failedRuns < RUNS) {
+      try {
+        const result = await run(provider, max_tokens);
+        console.log(successfulRuns + 1, RUNS);
+        results_at_token.push(result);
+        console.log('Results', results_at_token);
+        successfulRuns++;
+      } catch (e) {
+        failedRuns++;
+        console.log(e);
+      }
+    }
+
+    const matchesCount = results_at_token.reduce(
+      (acc, curr) => acc + curr.matchesCount,
+      0
+    );
+    const falsePositivesCount = results_at_token.reduce(
+      (acc, curr) => acc + curr.falsePositivesCount,
+      0
+    );
+
+    const averageMatches = matchesCount / RUNS;
+    const averageFalsePositives = falsePositivesCount / RUNS;
+
+    await saveResults(
+      provider,
+      max_tokens,
+      averageMatches,
+      averageFalsePositives,
+      successfulRuns
+    );
+
+    console.log('Average matches', averageMatches);
+    console.log('Average false positives', averageFalsePositives);
+    results.push({
+      max_tokens,
+      matchesCount: averageMatches,
+      falsePositivesCount: averageFalsePositives,
+      successfulRuns,
+    });
+    console.log(results);
+    if (max_tokens === provider.maxTokens - 300) {
+      break;
+    } else if (max_tokens * 2 >= provider.maxTokens) {
+      max_tokens = provider.maxTokens - 300; // -300 so we don't exceed when including the completion tokens
+    } else {
+      max_tokens = max_tokens * 2;
     }
   }
-
-  console.log('Results', results);
-
-  const matchesCount = results.reduce(
-    (acc, curr) => acc + curr.matchesCount,
-    0
-  );
-  const falsePositivesCount = results.reduce(
-    (acc, curr) => acc + curr.falsePositivesCount,
-    0
-  );
-
-  console.log('Average matches', matchesCount / RUNS);
-  console.log('Average false positives', falsePositivesCount / RUNS);
 };

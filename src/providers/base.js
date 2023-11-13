@@ -1,5 +1,9 @@
 export default class BaseProvider {
-  constructor(model) {
-    this.modelName = model;
+  constructor(modelName) {
+    const model = this.constructor
+      .getModels()
+      .find((m) => m.name === modelName);
+    this.modelName = model.name;
+    this.maxTokens = model.maxTokens;
   }
 }
