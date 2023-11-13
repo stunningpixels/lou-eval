@@ -5,11 +5,11 @@ This exists to track the progress of LLM context utilisation
 ## How to use
 
 - Add your keys in .env
-- Modify the bottom of attention.js
-  - Choose your model here `const result = await run(MODELS.gpt40314);`
-  - Choose your context length you want to test `const MAX_TOKENS = 4000;`
-    - Don't forget to leave some headroom for completion, if you're testing 128k tokens set this to 127.5k
+- Run `npm run start`
+- Choose a model in the CLI
+- The model will be automatically evaluated, taking 10 samples at each context length starting at 1k tokens and doubling up to the maximum context length supported by the model
+- Data is saved in the `/data` directory
 
 ## Future plans
 
-Want to evaluate other models? Create a PR! Sorry the code is pretty messy, hope to clean this up.
+- Evaluate other models (Claude, Open Source...)
