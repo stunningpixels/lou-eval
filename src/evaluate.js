@@ -135,7 +135,7 @@ const run = async (provider, max_tokens) => {
 
 export default async (provider) => {
   const RUNS = process.env.RUNS || 10;
-  let max_tokens = 1000;
+  let max_tokens = 127600;
   let results = [];
 
   while (max_tokens < provider.maxTokens) {
@@ -185,10 +185,10 @@ export default async (provider) => {
       successfulRuns,
     });
     console.log(results);
-    if (max_tokens === provider.maxTokens - 300) {
+    if (max_tokens === provider.maxTokens - 400) {
       break;
     } else if (max_tokens * 2 >= provider.maxTokens) {
-      max_tokens = provider.maxTokens - 300; // -300 so we don't exceed when including the completion tokens
+      max_tokens = provider.maxTokens - 400; // -300 so we don't exceed when including the completion tokens
     } else {
       max_tokens = max_tokens * 2;
     }
