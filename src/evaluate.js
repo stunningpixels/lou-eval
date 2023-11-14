@@ -135,7 +135,7 @@ const run = async (provider, max_tokens) => {
 
 export default async (provider) => {
   const RUNS = process.env.RUNS || 10;
-  let max_tokens = 127600;
+  let max_tokens = 1000;
   let results = [];
 
   while (max_tokens < provider.maxTokens) {
