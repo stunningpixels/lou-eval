@@ -188,7 +188,7 @@ export default async (provider) => {
     if (max_tokens === provider.maxTokens - 400) {
       break;
     } else if (max_tokens * 2 >= provider.maxTokens) {
-      max_tokens = provider.maxTokens - 400; // -300 so we don't exceed when including the completion tokens
+      max_tokens = provider.maxTokens - 600; // -600 so we don't exceed when including the completion tokens
     } else {
       max_tokens = max_tokens * 2;
     }

@@ -102,10 +102,18 @@ const generateChart = async (rows) => {
           tick: {
             rotate: 90,
           },
+          label: {
+            text: 'Tokens',
+            position: 'outer-center',
+          },
         },
         y: {
           min: 1,
           max: 10,
+          label: {
+            text: 'Matches',
+            position: 'outer-middle',
+          },
         },
       },
       grid: {

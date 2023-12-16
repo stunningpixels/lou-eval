@@ -7,6 +7,7 @@ export default class AnthropicProvider extends BaseProvider {
   static getModels() {
     return [
       { name: 'claude-2.0', maxTokens: 100000 },
+      { name: 'claude-2.1', maxTokens: 200000 },
       { name: 'claude-instant-1.2', maxTokens: 100000 },
     ];
   }
