@@ -219,6 +219,13 @@ const main = async () => {
 
   for (let model in modelData) {
     for (let row of modelData[model].results) {
+      const adjustedMaxTokens =
+        row.maxTokens % 1000
+          ? row.maxTokens - (row.maxTokens % 1000) + 1000
+          : row.maxTokens;
+
+      row.maxTokens = parseInt(adjustedMaxTokens);
+
       const maxTokensFound = rows.find(
         (row1) => row.maxTokens === row1.maxTokens
       );

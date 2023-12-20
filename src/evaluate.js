@@ -9,6 +9,8 @@ import levenshtein from 'js-levenshtein';
 
 import { saveResults } from './save.js';
 
+const COMPLETION_HEADROOM = 400;
+
 const QUESTION =
   'Who has a pet fruit instead of a pet animal? Respond with a JSON list all the instances you find in the format: [{"name":"NAME OF PERSON","fruit":"NAME OF FRUIT"},...]. DO NOT INCLUDE ANY ANIMALS.';
 
@@ -41,6 +43,7 @@ const getPrompt = async (provider, max_tokens) => {
   let characterCount = 0;
   const matches = [];
   const usedNames = [];
+
   while (characterCount < 10) {
     const randomName = uniqueNamesGenerator({ dictionaries: [names] });
     const randomAnimal = uniqueNamesGenerator({ dictionaries: [fruits] });
@@ -121,11 +124,13 @@ const run = async (provider, max_tokens) => {
       result.indexOf('['),
       result.lastIndexOf(']') + 1
     );
-    parsed = JSON.parse(json);
+    const jsonNoNewlines = json.replace(/\n/g, '');
+    console.log(jsonNoNewlines);
+    parsed = JSON.parse(jsonNoNewlines);
     console.log(parsed);
   } catch (e) {
     console.log(result);
-    throw new Error('Failed to parse JSON');
+    throw new Error('Failed to parse response', e);
   }
 
   const results = compareMatches(matches, parsed);
@@ -146,7 +151,7 @@ export default async (provider) => {
     while (successfulRuns < RUNS && failedRuns < RUNS) {
       try {
         const result = await run(provider, max_tokens);
-        console.log(successfulRuns + 1, RUNS);
+        console.log(successfulRuns + 1, 'of', RUNS);
         results_at_token.push(result);
         console.log('Results', results_at_token);
         successfulRuns++;
@@ -185,10 +190,10 @@ export default async (provider) => {
       successfulRuns,
     });
     console.log(results);
-    if (max_tokens === provider.maxTokens - 400) {
+    if (max_tokens === provider.maxTokens - COMPLETION_HEADROOM) {
       break;
     } else if (max_tokens * 2 >= provider.maxTokens) {
-      max_tokens = provider.maxTokens - 600; // -600 so we don't exceed when including the completion tokens
+      max_tokens = provider.maxTokens - COMPLETION_HEADROOM; // -600 so we don't exceed when including the completion tokens
     } else {
       max_tokens = max_tokens * 2;
     }

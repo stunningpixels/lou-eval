@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 
 import OpenAIProvider from './providers/openai.js';
 import AnthropicProvider from './providers/anthropic.js';
+import ReplicateProvider from './providers/replicate.js';
 
 import evaluate from './evaluate.js';
 
@@ -14,7 +15,7 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-const providers = [OpenAIProvider, AnthropicProvider];
+const providers = [OpenAIProvider, AnthropicProvider, ReplicateProvider];
 
 const main = async () => {
   // List the models in each provider

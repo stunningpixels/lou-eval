@@ -16,9 +16,11 @@
     "dotenv": "^16.3.1",
     "gpt-tokenizer": "^2.1.2",
     "js-levenshtein": "^1.1.6",
+    "mistral-tokenizer-js": "^1.0.0",
     "openai": "^3.3.0",
     "prompts": "^2.4.2",
     "puppeteer": "^21.5.1",
+    "replicate": "^0.25.1",
     "unique-names-generator": "^4.7.1"
   }
 }
