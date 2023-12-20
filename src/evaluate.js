@@ -12,7 +12,7 @@ import { saveResults } from './save.js';
 const COMPLETION_HEADROOM = 400;
 
 const QUESTION =
-  'Who has a pet fruit instead of a pet animal? Respond with a JSON list all the instances you find in the format: [{"name":"NAME OF PERSON","fruit":"NAME OF FRUIT"},...]. DO NOT INCLUDE ANY ANIMALS.';
+  'List the 10 people with a pet fruit instead of a pet animal. Respond with a JSON list all the instances you find in the format: [{"name":"NAME OF PERSON","fruit":"NAME OF FRUIT"},...]. DO NOT INCLUDE ANY ANIMALS.';
 
 const fruits = [
   'apple',
@@ -114,7 +114,8 @@ const compareMatches = (matches, found) => {
 
 const run = async (provider, max_tokens) => {
   const { prompt, matches } = await getPrompt(provider, max_tokens);
-  let result = await provider.generateCompletion(`${prompt}\n\n${QUESTION}`);
+  // let result = await provider.generateCompletion(`${prompt}\n\n${QUESTION}`);
+  let result = await provider.generateCompletion(prompt, QUESTION);
 
   let parsed;
 

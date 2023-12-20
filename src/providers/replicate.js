@@ -4,7 +4,7 @@ import mistralTokenizer from 'mistral-tokenizer-js';
 
 import BaseProvider from './base.js';
 
-export default class MistralProvider extends BaseProvider {
+export default class ReplicateProvider extends BaseProvider {
   static getModels() {
     return [{ name: 'mixtral-8x7b-instruct-v0.1', maxTokens: 32000 }];
   }

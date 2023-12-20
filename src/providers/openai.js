@@ -20,7 +20,7 @@ export default class OpenAIProvider extends BaseProvider {
     return tokens.length;
   }
 
-  async generateCompletion(text) {
+  async generateCompletion(corpus, prompt) {
     const config = new Configuration({
       apiKey: process.env.OPENAI_KEY,
     });
@@ -31,7 +31,10 @@ export default class OpenAIProvider extends BaseProvider {
       model: this.modelName,
       temperature: 0,
       max_tokens: 300,
-      messages: [{ role: 'user', content: text }],
+      messages: [
+        { role: 'system', content: prompt },
+        { role: 'user', content: corpus },
+      ],
     });
 
     return completion.data.choices[0].message.content;
