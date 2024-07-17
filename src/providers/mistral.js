@@ -5,11 +5,11 @@ import mistralTokenizer from 'mistral-tokenizer-js';
 import BaseProvider from './base.js';
 
 export default class MistralProvider extends BaseProvider {
+  codePrompt = true;
   static getModels() {
     return [
-      { name: 'mistral-medium', maxTokens: 32000 },
-      { name: 'mistral-small', maxTokens: 32000 },
-      { name: 'mistral-tiny', maxTokens: 32000 },
+      { name: 'codestral-mamba-latest', maxTokens: 32000 },
+      { name: 'codestral-latest', maxTokens: 256000 },
     ];
   }
 
@@ -18,17 +18,17 @@ export default class MistralProvider extends BaseProvider {
     return tokens;
   }
 
-  async generateCompletion(corpus, prompt) {
+  async generateCompletion(userPrompt, systemPrompt) {
     const client = new MistralClient(process.env.MISTRAL_KEY);
 
     const chatResponse = await client.chat({
       model: this.modelName,
       messages: [
-        { role: 'system', content: prompt },
-        { role: 'user', content: corpus },
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
       ],
       temperature: 0,
-      maxTokens: 300,
+      maxTokens: 500,
     });
 
     return chatResponse.choices[0].message.content;

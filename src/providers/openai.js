@@ -10,6 +10,7 @@ export default class OpenAIProvider extends BaseProvider {
       { name: 'gpt-4-32k-0314', maxTokens: 32000 },
       { name: 'gpt-4-32k-0613', maxTokens: 32000 },
       { name: 'gpt-4-1106-preview', maxTokens: 128000 },
+      { name: 'gpt-4o', maxTokens: 128000 },
       { name: 'gpt-3.5-turbo-1106', maxTokens: 16000 },
       { name: 'gpt-3.5-turbo-16k-0613', maxTokens: 16000 },
     ];
