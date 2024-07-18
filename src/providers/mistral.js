@@ -8,8 +8,8 @@ export default class MistralProvider extends BaseProvider {
   codePrompt = true;
   static getModels() {
     return [
-      { name: 'codestral-mamba-latest', maxTokens: 32000 },
-      { name: 'codestral-latest', maxTokens: 256000 },
+      { name: 'codestral-mamba-latest', maxTokens: 256000 },
+      { name: 'codestral-latest', maxTokens: 32000 },
     ];
   }
 
