@@ -15,7 +15,7 @@
     "@anthropic-ai/tokenizer": "^0.0.4",
     "@mistralai/mistralai": "^0.0.7",
     "dotenv": "^16.3.1",
-    "gpt-tokenizer": "^2.1.2",
+    "gpt-tokenizer": "^2.2.1",
     "js-levenshtein": "^1.1.6",
     "mistral-tokenizer-js": "^1.0.0",
     "openai": "^3.3.0",
