@@ -4,7 +4,10 @@ import BaseProvider from "./base.js";
 
 export default class OpenAIProvider extends BaseProvider {
   static getModels() {
-    return [{ name: "gpt-4.1-2025-04-14", maxChars: 2000000 }];
+    return [
+      { name: "gpt-4.1-2025-04-14", maxChars: 10000000 },
+      { name: "gpt-4o-2024-11-20", maxChars: 10000000 },
+    ];
   }
 
   async generateCompletion(haystack, systemPrompt) {

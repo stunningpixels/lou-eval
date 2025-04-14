@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 
 import BaseProvider from "./base.js";
 
@@ -8,21 +8,18 @@ export default class GoogleAiStudioProvider extends BaseProvider {
   }
 
   async generateCompletion(haystack, systemPrompt) {
-    const client = new OpenAI({
-      apiKey: process.env.GOOGLE_AI_STUDIO_KEY,
-      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-    });
+    const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_AI_STUDIO_KEY });
 
-    const completion = await client.chat.completions.create({
+    const response = await ai.models.generateContent({
       model: this.modelName,
-      temperature: 0,
-      max_tokens: 300,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: haystack },
-      ],
+      contents: haystack,
+      config: {
+        temperature: 0,
+        maxOutputTokens: 2000,
+        systemInstruction: systemPrompt,
+      },
     });
 
-    return completion.choices[0].message.content;
+    return response.text;
   }
 }

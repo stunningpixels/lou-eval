@@ -4,7 +4,10 @@ import BaseProvider from "./base.js";
 
 export default class AnthropicProvider extends BaseProvider {
   static getModels() {
-    return [{ name: "claude-3-7-sonnet-20250219", maxChars: 2000000 }];
+    return [
+      { name: "claude-3-7-sonnet-20250219", maxChars: 10000000 },
+      { name: "claude-3-5-sonnet-20241022", maxChars: 10000000 },
+    ];
   }
 
   async generateCompletion(corpus, prompt) {
