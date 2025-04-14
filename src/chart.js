@@ -8,13 +8,16 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+let width = 1000;
+let height = 500;
+
 const screenshot = async (options = {}, path = "chart.png") => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   await page.setViewport({
-    width: 750,
-    height: 500,
+    width: width,
+    height: height,
     deviceScaleFactor: 4,
   });
 
@@ -101,11 +104,13 @@ const generateChart = async (rows) => {
         x: {
           tick: {
             rotate: 90,
+            culling: false,
           },
           label: {
             text: "Chars",
             position: "outer-center",
           },
+          padding: { left: 200 },
         },
         y: {
           min: 1,
@@ -129,10 +134,24 @@ const generateChart = async (rows) => {
         rows,
         type: "line",
       },
-      size: { height: 250, width: 500 },
+      size: { height: height, width: width },
+      padding: {
+        top: 50,
+        right: 50,
+        bottom: 100,
+        left: 50,
+      },
       bindto: "#chart",
       line: {
         connectNull: true,
+      },
+      legend: {
+        padding: 50,
+        position: "inset",
+        inset: {
+          anchor: "bottom-left",
+          y: 80,
+        },
       },
     },
     path.join(__dirname, `../charts/${timestamp}.png`)

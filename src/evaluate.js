@@ -185,6 +185,7 @@ export default async (provider) => {
     const results_at_char = [];
     let successfulRuns = 0;
 
+    let first_try = true;
     while (successfulRuns < RUNS && failedRuns < MAX_FAILED_RUNS) {
       try {
         const result = await run(provider, currentChars);
@@ -195,8 +196,18 @@ export default async (provider) => {
         failedRuns = 0;
       } catch (e) {
         failedRuns++;
+        if (first_try) {
+          // Probably too many tokens, reduce by 25%
+          console.log(
+            "Reducing max chars by 25%",
+            currentChars,
+            currentChars * 0.75
+          );
+          currentChars = currentChars * 0.75;
+        }
         console.log(e);
       }
+      first_try = false;
     }
 
     const matchesCount = results_at_char.reduce(
