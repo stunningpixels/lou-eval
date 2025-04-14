@@ -4,6 +4,6 @@ export default class BaseProvider {
       .getModels()
       .find((m) => m.name === modelName);
     this.modelName = model.name;
-    this.maxTokens = model.maxTokens;
+    this.maxChars = model.maxChars;
   }
 }

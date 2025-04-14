@@ -1,27 +1,21 @@
-import dotenv from 'dotenv';
-import prompts from 'prompts';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import dotenv from "dotenv";
+import prompts from "prompts";
+import path from "path";
+import { fileURLToPath } from "url";
 
-import OpenAIProvider from './providers/openai.js';
-import AnthropicProvider from './providers/anthropic.js';
-import ReplicateProvider from './providers/replicate.js';
-import MistralProvider from './providers/mistral.js';
+import OpenAIProvider from "./providers/openai.js";
+import AnthropicProvider from "./providers/anthropic.js";
+import GoogleAiStudioProvider from "./providers/google_ai_studio.js";
 
-import evaluate from './evaluate.js';
+import evaluate from "./evaluate.js";
 
 const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.join(__dirname, '../.env') });
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
-const providers = [
-  OpenAIProvider,
-  AnthropicProvider,
-  ReplicateProvider,
-  MistralProvider,
-];
+const providers = [OpenAIProvider, AnthropicProvider, GoogleAiStudioProvider];
 
 const main = async () => {
   // List the models in each provider
@@ -33,9 +27,9 @@ const main = async () => {
 
   // Prompt user to select a model to eval
   const { value: modelChoiceName } = await prompts({
-    type: 'select',
-    name: 'value',
-    message: 'Pick a model',
+    type: "select",
+    name: "value",
+    message: "Pick a model",
     choices: models.map((model) => ({
       title: model.model,
       value: model.model,

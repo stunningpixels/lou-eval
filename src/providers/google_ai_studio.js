@@ -2,14 +2,15 @@ import OpenAI from "openai";
 
 import BaseProvider from "./base.js";
 
-export default class OpenAIProvider extends BaseProvider {
+export default class GoogleAiStudioProvider extends BaseProvider {
   static getModels() {
-    return [{ name: "gpt-4.1-2025-04-14", maxChars: 2000000 }];
+    return [{ name: "gemini-2.5-pro-preview-03-25", maxChars: 2000000 }];
   }
 
   async generateCompletion(haystack, systemPrompt) {
     const client = new OpenAI({
-      apiKey: process.env.OPENAI_KEY,
+      apiKey: process.env.GOOGLE_AI_STUDIO_KEY,
+      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
     });
 
     const completion = await client.chat.completions.create({

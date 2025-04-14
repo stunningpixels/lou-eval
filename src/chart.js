@@ -1,14 +1,14 @@
-import puppeteer from 'puppeteer';
-import prompts from 'prompts';
-import util from 'util';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import puppeteer from "puppeteer";
+import prompts from "prompts";
+import util from "util";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const screenshot = async (options = {}, path = 'chart.png') => {
+const screenshot = async (options = {}, path = "chart.png") => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
@@ -19,32 +19,32 @@ const screenshot = async (options = {}, path = 'chart.png') => {
   });
 
   page
-    .on('console', (message) =>
+    .on("console", (message) =>
       console.log(
         `${message.type().substr(0, 3).toUpperCase()} ${message.text()}`
       )
     )
-    .on('pageerror', ({ message }) => console.log(message))
-    .on('response', (response) =>
+    .on("pageerror", ({ message }) => console.log(message))
+    .on("response", (response) =>
       console.log(`${response.status()} ${response.url()}`)
     )
-    .on('requestfailed', (request) =>
+    .on("requestfailed", (request) =>
       console.log(`${request.failure().errorText} ${request.url()}`)
     );
 
   // load billboard.js assets fro CDN
   await page.addStyleTag({
-    url: 'https://cdn.jsdelivr.net/npm/billboard.js/dist/theme/modern.min.css',
+    url: "https://cdn.jsdelivr.net/npm/billboard.js/dist/theme/modern.min.css",
   });
   await page.addScriptTag({
-    url: 'https://cdn.jsdelivr.net/npm/billboard.js/dist/billboard.pkgd.min.js',
+    url: "https://cdn.jsdelivr.net/npm/billboard.js/dist/billboard.pkgd.min.js",
   });
 
   await page.evaluate(`
     bb.generate(${JSON.stringify(options)});
   `);
 
-  const content = await page.$('.bb > svg');
+  const content = await page.$(".bb > svg");
 
   await page.evaluate(`const chart = document.getElementsByTagName('svg')[0];
   const gridLines = chart.querySelector('.bb-grid-lines');
@@ -78,7 +78,7 @@ const screenshot = async (options = {}, path = 'chart.png') => {
 };
 
 const generateChart = async (rows) => {
-  // Generate grid lines every 4000 tokens, until the maxTokens
+  // Generate grid lines every 4000 chars, until the maxChars
   const gridLines = [];
   for (let i = 4000; i <= rows[rows.length - 1][0]; i += 4000) {
     gridLines.push({ value: i });
@@ -103,16 +103,16 @@ const generateChart = async (rows) => {
             rotate: 90,
           },
           label: {
-            text: 'Tokens',
-            position: 'outer-center',
+            text: "Chars",
+            position: "outer-center",
           },
         },
         y: {
           min: 1,
           max: 10,
           label: {
-            text: 'Matches',
-            position: 'outer-middle',
+            text: "Matches",
+            position: "outer-middle",
           },
         },
       },
@@ -125,12 +125,12 @@ const generateChart = async (rows) => {
         },
       },
       data: {
-        x: 'tokens',
+        x: "chars",
         rows,
-        type: 'line',
+        type: "line",
       },
       size: { height: 250, width: 500 },
-      bindto: '#chart',
+      bindto: "#chart",
       line: {
         connectNull: true,
       },
@@ -145,11 +145,11 @@ const listAvailableModels = async () => {
   const files = await fs.readdir(dataPath);
 
   // Get the CSV files
-  const csvFiles = files.filter((file) => file.endsWith('.csv'));
+  const csvFiles = files.filter((file) => file.endsWith(".csv"));
 
   // Get the model names
   const modelNames = csvFiles.map((file) => ({
-    model: file.replace('.csv', ''),
+    model: file.replace(".csv", ""),
     path: path.join(dataPath, file),
   }));
   return modelNames;
@@ -160,9 +160,9 @@ const main = async () => {
 
   // Ask user which models they would like to chart
   const { value: modelChoices } = await prompts({
-    type: 'multiselect',
-    name: 'value',
-    message: 'Pick models to chart',
+    type: "multiselect",
+    name: "value",
+    message: "Pick models to chart",
     choices: modelNames.map((model) => ({
       title: model.model,
       value: model.model,
@@ -179,22 +179,22 @@ const main = async () => {
 
   // Generate function
   const generateData = async (model) => {
-    const data = await fs.readFile(model.path, 'utf-8');
-    const rows = data.split('\n').map((row) => row.split(','));
+    const data = await fs.readFile(model.path, "utf-8");
+    const rows = data.split("\n").map((row) => row.split(","));
     rows.shift(); // Remove the header
     const formattedRows = rows
-      .filter((row) => row[0] !== '' && row[1] !== '')
+      .filter((row) => row[0] !== "" && row[1] !== "")
       .map((row) => ({
-        maxTokens: row[0],
+        maxChars: row[0],
         matches: row[1],
         timestamp: row[4],
       }));
 
-    // Take latest for each maxTokens
+    // Take latest for each maxChars
     const uniqueRows = [];
     for (const row of formattedRows) {
       const found = uniqueRows.find(
-        (uniqueRow) => uniqueRow.maxTokens === row.maxTokens
+        (uniqueRow) => uniqueRow.maxChars === row.maxChars
       );
       if (found) {
         if (new Date(found.timestamp) < new Date(row.timestamp)) {
@@ -206,8 +206,8 @@ const main = async () => {
       }
     }
 
-    // Sort by maxTokens
-    uniqueRows.sort((a, b) => a.maxTokens - b.maxTokens);
+    // Sort by maxChars
+    uniqueRows.sort((a, b) => a.maxChars - b.maxChars);
 
     return { model: model.model, results: uniqueRows };
   };
@@ -219,60 +219,58 @@ const main = async () => {
 
   for (let model in modelData) {
     for (let row of modelData[model].results) {
-      const adjustedMaxTokens =
-        row.maxTokens % 1000
-          ? row.maxTokens - (row.maxTokens % 1000) + 1000
-          : row.maxTokens;
+      const adjustedMaxChars =
+        row.maxChars % 1000
+          ? row.maxChars - (row.maxChars % 1000) + 1000
+          : row.maxChars;
 
-      row.maxTokens = parseInt(adjustedMaxTokens);
+      row.maxChars = parseInt(adjustedMaxChars);
 
-      const maxTokensFound = rows.find(
-        (row1) => row.maxTokens === row1.maxTokens
-      );
+      const maxCharsFound = rows.find((row1) => row.maxChars === row1.maxChars);
 
-      const maxTokens = row.maxTokens;
+      const maxChars = row.maxChars;
       const matches = row.matches;
 
-      if (maxTokensFound) {
-        maxTokensFound[modelData[model].model] = matches;
+      if (maxCharsFound) {
+        maxCharsFound[modelData[model].model] = matches;
       } else {
-        const newRow = { maxTokens };
+        const newRow = { maxChars };
         newRow[modelData[model].model] = matches;
         rows.push(newRow);
       }
     }
   }
 
-  const finalRows = [['tokens', ...modelData.map((model) => model.model)]];
+  const finalRows = [["chars", ...modelData.map((model) => model.model)]];
 
   for (const row of rows) {
-    const newRow = [row.maxTokens];
+    const newRow = [row.maxChars];
     for (const model of modelData) {
       newRow.push(row[model.model]);
     }
     finalRows.push(newRow);
   }
 
-  // User chooses maximum maxTokens to generate chart
+  // User chooses maximum maxChars to generate chart
 
   // Prompt user to select maximum
-  const { value: maxTokensChoice } = await prompts({
-    type: 'select',
-    name: 'value',
-    message: 'Pick the maximum token size for the x axis',
+  const { value: maxCharsChoice } = await prompts({
+    type: "select",
+    name: "value",
+    message: "Pick the maximum token size for the x axis",
     choices: [
-      { title: 'Skip', value: null },
+      { title: "Skip", value: null },
       ...rows.map((row) => ({
-        title: `<=${row.maxTokens}`,
-        value: row.maxTokens,
+        title: `<=${row.maxChars}`,
+        value: row.maxChars,
       })),
     ],
   });
 
   // Filter rows
-  if (maxTokensChoice) {
+  if (maxCharsChoice) {
     finalRows.splice(
-      finalRows.findIndex((row) => row[0] === maxTokensChoice) + 1
+      finalRows.findIndex((row) => row[0] === maxCharsChoice) + 1
     );
   }
 

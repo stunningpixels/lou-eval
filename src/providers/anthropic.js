@@ -1,33 +1,28 @@
-import Anthropic from '@anthropic-ai/sdk';
-import { countTokens } from '@anthropic-ai/tokenizer';
+import Anthropic from "@anthropic-ai/sdk";
 
-import BaseProvider from './base.js';
+import BaseProvider from "./base.js";
 
 export default class AnthropicProvider extends BaseProvider {
   static getModels() {
-    return [
-      { name: 'claude-2.0', maxTokens: 100000 },
-      { name: 'claude-2.1', maxTokens: 200000 },
-      { name: 'claude-instant-1.2', maxTokens: 100000 },
-    ];
+    return [{ name: "claude-3-7-sonnet-20250219", maxChars: 2000000 }];
   }
 
-  async countTokens(text) {
-    return countTokens(text);
-  }
-
-  async generateCompletion(text) {
+  async generateCompletion(corpus, prompt) {
     const anthropicConfig = new Anthropic({
       apiKey: process.env.ANTHROPIC_KEY,
     });
 
-    const completion = await anthropicConfig.completions.create({
+    const message = await anthropicConfig.messages.create({
       model: this.modelName,
-      max_tokens_to_sample: 300,
+      max_tokens: 300,
       temperature: 0,
-      prompt: `${Anthropic.HUMAN_PROMPT} ${text} ${Anthropic.AI_PROMPT}`,
+      system: prompt,
+      messages: [{ role: "user", content: corpus }],
+      thinking: {
+        type: "disabled",
+      },
     });
 
-    return completion.completion;
+    return message.content[0].text;
   }
 }
